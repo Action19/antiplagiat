@@ -51,7 +51,7 @@ export default function CheckDocument() {
           return;
         }
         const formData = new FormData();
-        formData.append('document', file);
+        formData.append('file', file);
         if (title) formData.append('title', title);
         response = await documentsAPI.upload(formData);
       }
