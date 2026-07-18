@@ -135,8 +135,8 @@ export default function Dashboard() {
                         </span>
                       </td>
                       <td className="py-3">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${doc.status === 'completed' ? 'bg-green-100 text-green-700' : doc.status === 'processing' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
-                          {doc.status === 'completed' ? 'Tayyor' : doc.status === 'processing' ? 'Jarayonda' : doc.status || 'Kutilmoqda'}
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${(doc.check_status || doc.status) === 'completed' ? 'bg-green-100 text-green-700' : (doc.check_status || doc.status) === 'processing' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}>
+                          {(doc.check_status || doc.status) === 'completed' ? 'Tayyor' : (doc.check_status || doc.status) === 'processing' ? 'Jarayonda' : (doc.check_status || doc.status) || 'Kutilmoqda'}
                         </span>
                       </td>
                       <td className="py-3 text-gray-500">{doc.created_at ? new Date(doc.created_at).toLocaleDateString('uz') : '—'}</td>

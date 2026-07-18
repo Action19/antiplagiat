@@ -80,7 +80,7 @@ export default function DocumentDetail() {
               {document.title || document.filename || 'Hujjat'}
             </h1>
           </div>
-          {document.status === 'completed' && (
+          {(document.check_status || document.status) === 'completed' && (
             <button onClick={downloadReport} className="btn-secondary flex items-center gap-2 text-sm">
               <FiDownload /> Hisobot
             </button>
@@ -89,7 +89,7 @@ export default function DocumentDetail() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {document.status !== 'completed' ? (
+        {(document.check_status || document.status) !== 'completed' ? (
           <div className="card text-center py-12">
             <div className="spinner w-12 h-12 mx-auto mb-4"></div>
             <p className="text-lg font-medium text-gray-700">Hujjat tekshirilmoqda...</p>
