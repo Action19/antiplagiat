@@ -1,6 +1,6 @@
 /**
- * AI Text Detection moduli (v3 - Kalibrovka qilingan)
- * O'zbek ilmiy matnini to'g'ri tahlil qiladi.
+ * AI Text Detection moduli (v4 - Barcha uslublar uchun)
+ * ChatGPT ning ilmiy, og'zaki va aralash uslublarini aniqlaydi.
  */
 
 class AIDetector {
@@ -8,47 +8,60 @@ class AIDetector {
     this.transitionWords = [
       'furthermore', 'moreover', 'additionally', 'consequently',
       'nevertheless', 'however', 'therefore', 'subsequently',
-      'significantly', 'importantly', 'notably', 'specifically',
       'in conclusion', 'in summary', 'in addition', 'as a result',
       'on the other hand', 'for instance', 'for example',
       'shuningdek', 'bundan tashqari', 'natijada', 'shu sababli',
       'biroq', 'ammo', 'lekin', 'shunga qaramay', 'masalan',
-      'xulosa qilib', 'shuni ta\'kidlash', 'shu bilan birga',
-      'yuqoridagilardan', 'qayd etish', 'ta\'kidlash joiz',
-      'e\'tibor qaratish', 'muhim ahamiyatga', 'dolzarb masala',
-      'alohida ahamiyat', 'shu o\'rinda', 'qolaversa',
-      'bunga qo\'shimcha', 'shunday qilib', 'demak', 'binobarin',
-      'xususan', 'jumladan', 'ayniqsa', 'shu jumladan',
+      'xulosa qilib', 'shu bilan birga', 'yuqoridagilardan',
+      'shunday qilib', 'demak', 'binobarin', 'xususan', 'jumladan',
+      'ayniqsa', 'shu jumladan', 'qolaversa', 'albatta',
       'кроме того', 'более того', 'следовательно', 'однако',
-      'таким образом', 'в заключение', 'необходимо отметить'
+      'таким образом', 'в заключение'
     ];
 
-    this.aiPatterns = [
-      /(muhim|zarur|dolzarb).{0,20}(ahamiyatga|ahamiyat kasb|o'ringa).{0,15}(ega|etadi)/i,
-      /shuni.{0,10}(ta'kidlash|qayd etish|ko'rsatish|alohida qayd).{0,10}(joiz|lozim|kerak|zarur|mumkin)/i,
-      /(zamonaviy|bugungi|hozirgi).{0,10}(dunyoda|jamiyatda|davrda|ta'limda|sharoitda)/i,
-      /(muhim|katta|sezilarli|alohida).{0,10}(ahamiyat|o'rin|rol).{0,10}(kasb etadi|tutadi|ega)/i,
-      /yuqoridagilardan kelib.{0,5}(chiqib|chiqqan)/i,
-      /(takomillashtirish|rivojlantirish|joriy etish|amalga oshirish).{0,15}(zarur|lozim|kerak|maqsadga muvofiq)/i,
-      /ilmiy.{0,10}(tadqiqotlar|izlanishlar|manba|adabiyotlar).{0,10}(ko'rsatadi|shuni|tahlili)/i,
-      /(pedagogik|ilmiy|nazariy|amaliy).{0,10}(jihatdan|nuqtai nazardan|asosda)/i,
-      /imkonini (beradi|yaratadi|ta'minlaydi|ochadi)/i,
-      /(ta'minlash|oshirish|shakllantirish|rivojlantirish).{0,10}(maqsad|vazifa|talab)/i,
-      /(asoslab|isbotlab|ko'rsatib|tahlil qilib).{0,5}(bergan|o'tgan|kelgan)/i,
-      /it is (important|worth|essential|crucial) to (note|mention|highlight)/i,
-      /this (suggests|indicates|demonstrates|highlights|underscores)/i,
-      /plays a (crucial|vital|significant|important|key) role/i,
-      /(необходимо|важно|следует) (отметить|подчеркнуть|учитывать)/i
+    // AI patternlari - ilmiy uslub
+    this.formalAIPatterns = [
+      /(muhim|zarur|dolzarb).{0,25}(ahamiyat|o'rin|rol)/i,
+      /shuni.{0,15}(ta'kidlash|qayd etish|ko'rsatish).{0,10}(joiz|lozim|kerak)/i,
+      /(zamonaviy|bugungi|hozirgi).{0,15}(dunyoda|jamiyatda|davrda|sharoitda)/i,
+      /(takomillashtirish|rivojlantirish|joriy etish).{0,15}(zarur|lozim|kerak)/i,
+      /imkonini (beradi|yaratadi|ta'minlaydi)/i,
+      /it is (important|worth|essential) to (note|mention)/i,
+      /plays a (crucial|vital|significant) role/i,
     ];
 
-    // Inson yozganlikni bildiruvchi belgilar
-    this.humanIndicators = [
-      /\b(ya'ni|xullas|qisqasi|aytganday|o'zi|bilasizmi|voy|eee|ha|hmm)\b/i,
-      /\b(menimcha|o'ylayman|his qilaman|ko'rdim|eshitdim|sezdim)\b/i,
-      /[!]{2,}/, // Ko'p undov belgi
-      /\b\d{4}\b.{0,5}yil/i, // Aniq yillar (2024-yil) - inson
-      /\(.{0,50}(bet|b\.|p\.|sahifa)\)/i, // Sahifa raqamlari - inson
-      /\[\d+\]/, // Iqtibos raqamlari [1], [23] - inson
+    // AI patternlari - NORASMIY/og'zaki uslub (ChatGPT shunday yozadi)
+    this.informalAIPatterns = [
+      /bu.{0,15}(davr|payt|vaqt|yillar).{0,20}(eng|juda).{0,15}(muhim|unutilmas|qimmatli|go'zal|ajoyib)/i,
+      /(nafaqat|faqat).{0,20}(balki|ham)/i,
+      /hayot.{0,15}(dars|ibrat|tajriba|saboq).{0,10}(berdi|o'rgatdi|bo'ldi)/i,
+      /(eng|juda).{0,10}(muhim|qimmatli|unutilmas|go'zal|ajoyib).{0,15}(narsalardan|lahzalardan|davrlardan|kunlardan)/i,
+      /(shaxs|inson|insonni).{0,15}(shakllantir|rivojlantir|tarbiyala)/i,
+      /har bir.{0,15}(inson|kishi|odam|bola|o'quvchi).{0,15}(uchun|hayotida)/i,
+      /(xulosa|qisqa) qilib (aytganda|aytadigan|aytish)/i,
+      /bu.{0,10}(davr|payt|yillar).{0,15}(davomida|mobaynida|ichida)/i,
+      /(mustahkam|kuchli|chuqur).{0,15}(poydevor|asos|zamin).{0,10}(yaratadi|qo'yadi|bo'ladi)/i,
+      /not only.{0,20}but also/i,
+      /it is (worth|important).{0,10}(mentioning|noting|remembering)/i,
+      /these (experiences|moments|memories|years).{0,15}(shape|form|teach|help)/i,
+    ];
+
+    // ChatGPT ning xos xususiyatlari (barcha uslubda)
+    this.chatgptSignatures = [
+      // Bir xil tuzilma: "X nafaqat Y, balki Z ham"
+      /nafaqat.{5,40}balki.{5,40}ham/i,
+      // "Bu davr|narsa|masala" bilan boshlash
+      /^bu (davr|narsa|masala|jarayon|holat|jihat)/i,
+      // Parallel tuzilmalar (AI juda ko'p ishlatadi)
+      /(\w+lash|\w+tirish|\w+lanish),\s*(\w+lash|\w+tirish|\w+lanish)/i,
+      // Uch qismli tuzilma: A, B va C
+      /(\w+),\s*(\w+)\s*(va|hamda)\s*(\w+)/i,
+      // "...biri hisoblanadi/bo'ladi" konstruksiya
+      /(biri|biridir) (hisoblanadi|bo'ladi|sanaladi)/i,
+      // Abstrakt umumlashtirish
+      /har bir.{0,10}(inson|odam|kishi|bola)/i,
+      // GPT ko'p ishlatadigan so'z juftliklari
+      /(bilim|tajriba|ko'nikma).{0,10}(va|hamda).{0,10}(malaka|ko'nikma|bilim|tajriba)/i,
     ];
   }
 
@@ -57,26 +70,22 @@ class AIDetector {
       return { aiScore: 0, verdict: 'insufficient_text', message: 'Matn juda qisqa.', sentences: [], highlights: [], stats: {} };
     }
 
-    // TO'G'RI jumlalarga bo'lish (faqat . ! ? bilan)
     const sentences = this.splitSentences(text);
-    
-    // Har bir jumlani baholash
     const analyzedSentences = sentences.map((sentence, index) => {
       const score = this.analyzeSentence(sentence, index, sentences);
-      return { text: sentence, index, aiScore: score, isAI: score >= 55, level: this.getLevel(score) };
+      return { text: sentence, index, aiScore: score, isAI: score >= 50, level: this.getLevel(score) };
     });
 
-    // Xususiyatlar
     const features = this.analyzeFeatures(text, sentences);
     const featureScore = this.calculateFeatureScore(features);
     const sentenceAvg = this.calculateOverallFromSentences(analyzedSentences);
-    const finalScore = Math.round((sentenceAvg * 0.6 + featureScore * 0.4) * 100) / 100;
+    const finalScore = Math.round((sentenceAvg * 0.55 + featureScore * 0.45) * 100) / 100;
 
     let verdict = 'human';
-    if (finalScore >= 72) verdict = 'ai_generated';
-    else if (finalScore >= 55) verdict = 'likely_ai';
-    else if (finalScore >= 38) verdict = 'mixed';
-    else if (finalScore >= 20) verdict = 'likely_human';
+    if (finalScore >= 70) verdict = 'ai_generated';
+    else if (finalScore >= 52) verdict = 'likely_ai';
+    else if (finalScore >= 35) verdict = 'mixed';
+    else if (finalScore >= 18) verdict = 'likely_human';
 
     const highlights = this.buildHighlights(text, analyzedSentences);
     const aiSentences = analyzedSentences.filter(s => s.isAI).length;
@@ -98,129 +107,81 @@ class AIDetector {
     return { aiScore: r.aiScore, verdict: r.verdict, message: r.message, features: r.features };
   }
 
-  /**
-   * MUHIM: To'g'ri jumlalarga bo'lish
-   * Faqat nuqta, undov va so'roq belgisidan keyin yangi jumla boshlanadi
-   * Nuqtali vergul (;) va ikki nuqta (:) jumla ajratmaydi!
-   */
   splitSentences(text) {
-    // Qisqartmalarni himoya qilish
-    let cleaned = text
-      .replace(/\r\n/g, '\n')
-      .replace(/([A-Z])\./g, '$1DOTPROTECT') // Qisqartmalar: A. B. va h.k.
-      .replace(/(\d)\./g, '$1DOTPROTECT')     // 1. 2. 3. raqamlar
-      .replace(/(va h\.k|va sh\.k|va b)/g, '$1DOTPROTECT');
+    let cleaned = text.replace(/\r\n/g, '\n');
+    // Qisqartmalarni himoya
+    cleaned = cleaned.replace(/([A-Z])\.\s/g, '$1DOTPROT ');
+    cleaned = cleaned.replace(/(\d)\.\s/g, '$1DOTPROT ');
 
-    // Faqat . ! ? dan keyin bo'lish
-    const raw = cleaned.split(/(?<=[.!?])\s+(?=[A-ZА-ЯA-Z\u0400-\u04FF])|(?<=[.!?])\s*\n/);
-    
-    // DOTPROTECT ni qaytarish
+    // Jumlalarni ajratish: . ! ? dan keyin
+    const raw = cleaned.split(/(?<=[.!?])\s+/);
     const sentences = raw
-      .map(s => s.replace(/DOTPROTECT/g, '.').trim())
-      .filter(s => s.length > 30); // Kamida 30 belgi
+      .map(s => s.replace(/DOTPROT/g, '.').trim())
+      .filter(s => s.length > 25 && s.split(/\s+/).length >= 5);
 
-    // Agar kam jumla chiqsa, paragraflar bo'yicha
-    if (sentences.length < 5) {
-      const byParagraph = text.split(/\n\s*\n/).filter(p => p.trim().length > 50);
-      if (byParagraph.length > sentences.length) {
-        return byParagraph.map(p => p.trim());
-      }
+    if (sentences.length < 3) {
+      const byLine = text.split(/\n+/).filter(s => s.trim().length > 25);
+      if (byLine.length > sentences.length) return byLine.map(s => s.trim());
     }
 
-    // Juda uzun "jumlalarni" ham bo'lish (200+ so'z)
-    const final = [];
-    for (const s of sentences) {
-      const wordCount = s.split(/\s+/).length;
-      if (wordCount > 80) {
-        // Nuqtali vergul yoki yangi qator bilan bo'lish
-        const parts = s.split(/[;\n]/).filter(p => p.trim().length > 30);
-        if (parts.length > 1) {
-          final.push(...parts.map(p => p.trim()));
-        } else {
-          final.push(s);
-        }
-      } else {
-        final.push(s);
-      }
-    }
-
-    return final.length > 0 ? final : [text.trim()];
+    return sentences.length > 0 ? sentences : [text.trim()];
   }
 
   analyzeSentence(sentence, index, allSentences) {
     const wordCount = sentence.split(/\s+/).length;
     const lowerSentence = sentence.toLowerCase();
-    
+
     let totalScore = 0;
     let totalWeight = 0;
 
-    // 1. Jumla uzunligi (AI: 15-35 so'z orasida bo'ladi)
+    // 1. AI PATTERNS — FORMAL (25%)
+    const formalMatches = this.formalAIPatterns.filter(p => p.test(sentence)).length;
+    let formalPatScore = formalMatches >= 2 ? 90 : (formalMatches === 1 ? 72 : 25);
+    totalScore += formalPatScore * 0.20; totalWeight += 0.20;
+
+    // 2. AI PATTERNS — NORASMIY / ChatGPT (25%)
+    const informalMatches = this.informalAIPatterns.filter(p => p.test(sentence)).length;
+    let informalPatScore = informalMatches >= 2 ? 92 : (informalMatches === 1 ? 75 : 25);
+    totalScore += informalPatScore * 0.20; totalWeight += 0.20;
+
+    // 3. ChatGPT SIGNATURE (20%)
+    const sigMatches = this.chatgptSignatures.filter(p => p.test(sentence)).length;
+    let sigScore = sigMatches >= 2 ? 90 : (sigMatches === 1 ? 70 : 20);
+    totalScore += sigScore * 0.20; totalWeight += 0.20;
+
+    // 4. TRANSITION so'zlar (15%)
+    const startsWithTrans = this.transitionWords.some(tw => lowerSentence.startsWith(tw));
+    const hasTrans = this.transitionWords.some(tw => lowerSentence.includes(tw));
+    let transScore = startsWithTrans ? 80 : (hasTrans ? 55 : 15);
+    totalScore += transScore * 0.15; totalWeight += 0.15;
+
+    // 5. JUMLA UZUNLIGI (10%)
     let lenScore;
     if (wordCount >= 15 && wordCount <= 35) lenScore = 65;
     else if (wordCount >= 10 && wordCount <= 45) lenScore = 45;
     else lenScore = 20;
-    totalScore += lenScore * 0.08; totalWeight += 0.08;
+    totalScore += lenScore * 0.10; totalWeight += 0.10;
 
-    // 2. Transition so'zlar
-    const startsWithTransition = this.transitionWords.some(tw => lowerSentence.startsWith(tw));
-    const hasTransition = this.transitionWords.some(tw => lowerSentence.includes(tw));
-    let transScore = startsWithTransition ? 80 : (hasTransition ? 55 : 15);
-    totalScore += transScore * 0.18; totalWeight += 0.18;
-
-    // 3. AI pattern lar — ENG MUHIM MEZON
-    const patternMatches = this.aiPatterns.filter(p => p.test(sentence)).length;
-    let patternScore;
-    if (patternMatches >= 3) patternScore = 95;
-    else if (patternMatches >= 2) patternScore = 85;
-    else if (patternMatches === 1) patternScore = 68;
-    else patternScore = 20;
-    totalScore += patternScore * 0.28; totalWeight += 0.28;
-
-    // 4. Formal fe'llar (o'zbekcha)
-    const formalVerbs = /(hisoblanadi|sanaladi|qaraladi|amalga oshiriladi|ta'minlanadi|joriy etiladi|ko'rib chiqiladi|tavsiya etiladi|ishlab chiqilgan|asoslab berilgan|ko'rsatib o'tilgan|belgilab berilgan|aniqlangan|tahlil qilingan|o'rganilgan|qayd etilgan|yoritilgan|bayon etilgan|ifodalanadi|namoyon bo'ladi|xizmat qiladi|asos bo'ladi)/i;
-    const formalCount = (sentence.match(formalVerbs) || []).length;
-    let formalScore;
-    if (formalCount >= 2) formalScore = 80;
-    else if (formalCount === 1) formalScore = 60;
-    else formalScore = 20;
-    totalScore += formalScore * 0.18; totalWeight += 0.18;
-
-    // 5. Vergullar zichligi
+    // 6. VERGULLAR (8%)
     const commas = (sentence.match(/,/g) || []).length;
     const commaRatio = commas / Math.max(wordCount, 1);
-    let commaScore;
-    if (commaRatio > 0.15) commaScore = 70;
-    else if (commaRatio > 0.08) commaScore = 50;
-    else commaScore = 20;
-    totalScore += commaScore * 0.07; totalWeight += 0.07;
+    let commaScore = commaRatio > 0.12 ? 70 : (commaRatio > 0.06 ? 50 : 20);
+    totalScore += commaScore * 0.08; totalWeight += 0.08;
 
-    // 6. Oldingi jumla bilan uzunlik o'xshashligi
-    if (index > 0 && index < allSentences.length - 1) {
+    // 7. TEKISLIK — oldingi va keyingi jumlalar bilan (7%)
+    if (index > 0) {
       const prevLen = allSentences[index - 1].split(/\s+/).length;
-      const nextLen = allSentences[Math.min(index + 1, allSentences.length - 1)].split(/\s+/).length;
-      const avgNeighbor = (prevLen + nextLen) / 2;
-      const diff = Math.abs(wordCount - avgNeighbor);
-      let simScore;
-      if (diff <= 5) simScore = 70;
-      else if (diff <= 10) simScore = 45;
-      else simScore = 15;
-      totalScore += simScore * 0.06; totalWeight += 0.06;
-    }
-
-    // 7. INSON belgilari (bu ball kamaytiradi)
-    const hasHumanIndicator = this.humanIndicators.some(p => p.test(sentence));
-    if (hasHumanIndicator) {
-      totalScore += 10 * 0.15; totalWeight += 0.15;
-    } else {
-      totalScore += 55 * 0.15; totalWeight += 0.15;
+      const diff = Math.abs(wordCount - prevLen);
+      let simScore = diff <= 5 ? 70 : (diff <= 10 ? 45 : 15);
+      totalScore += simScore * 0.07; totalWeight += 0.07;
     }
 
     return Math.min(99, Math.round(totalScore / totalWeight));
   }
 
   getLevel(score) {
-    if (score >= 70) return 'high';
-    if (score >= 55) return 'medium';
+    if (score >= 65) return 'high';
+    if (score >= 50) return 'medium';
     if (score >= 35) return 'low';
     return 'none';
   }
@@ -248,7 +209,9 @@ class AIDetector {
       burstiness: this.analyzeBurstiness(sentences),
       vocabulary: this.analyzeVocabulary(text),
       transitions: this.analyzeTransitionDensity(text, sentences),
-      patterns: this.analyzePatternDensity(sentences),
+      formalPatterns: this.analyzePatternDensity(sentences, this.formalAIPatterns),
+      informalPatterns: this.analyzePatternDensity(sentences, this.informalAIPatterns),
+      signatures: this.analyzePatternDensity(sentences, this.chatgptSignatures),
       sentenceLength: this.analyzeSentenceLengthUniformity(sentences)
     };
   }
@@ -260,9 +223,9 @@ class AIDetector {
     const variance = lengths.reduce((sum, len) => sum + Math.pow(len - mean, 2), 0) / lengths.length;
     const cv = mean > 0 ? Math.sqrt(variance) / mean : 0;
     let score;
-    if (cv < 0.25) score = 80;
-    else if (cv < 0.40) score = 60;
-    else if (cv < 0.55) score = 35;
+    if (cv < 0.25) score = 82;
+    else if (cv < 0.38) score = 62;
+    else if (cv < 0.50) score = 38;
     else score = 15;
     return { score, cv: Math.round(cv * 100) / 100 };
   }
@@ -272,9 +235,9 @@ class AIDetector {
     const uniqueWords = new Set(words);
     const ttr = uniqueWords.size / Math.max(words.length, 1);
     let score;
-    if (ttr < 0.30) score = 75;
-    else if (ttr < 0.40) score = 55;
-    else if (ttr < 0.50) score = 35;
+    if (ttr < 0.35) score = 70;
+    else if (ttr < 0.45) score = 55;
+    else if (ttr < 0.55) score = 35;
     else score = 15;
     return { score, ttr: Math.round(ttr * 100) / 100 };
   }
@@ -283,30 +246,28 @@ class AIDetector {
     const lowerText = text.toLowerCase();
     let count = 0;
     for (const word of this.transitionWords) {
-      const regex = new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-      const matches = lowerText.match(regex);
-      if (matches) count += matches.length;
+      if (lowerText.includes(word)) count++;
     }
     const ratio = count / Math.max(sentences.length, 1);
     let score;
-    if (ratio > 0.5) score = 85;
-    else if (ratio > 0.3) score = 65;
-    else if (ratio > 0.15) score = 45;
+    if (ratio > 0.4) score = 85;
+    else if (ratio > 0.2) score = 62;
+    else if (ratio > 0.1) score = 40;
     else score = 15;
     return { score, count, ratio: Math.round(ratio * 100) / 100 };
   }
 
-  analyzePatternDensity(sentences) {
+  analyzePatternDensity(sentences, patterns) {
     let matchCount = 0;
     for (const s of sentences) {
-      if (this.aiPatterns.some(p => p.test(s))) matchCount++;
+      if (patterns.some(p => p.test(s))) matchCount++;
     }
     const ratio = matchCount / Math.max(sentences.length, 1);
     let score;
-    if (ratio > 0.30) score = 90;
-    else if (ratio > 0.15) score = 70;
-    else if (ratio > 0.08) score = 50;
-    else score = 20;
+    if (ratio > 0.35) score = 90;
+    else if (ratio > 0.20) score = 72;
+    else if (ratio > 0.10) score = 50;
+    else score = 18;
     return { score, matchCount, ratio: Math.round(ratio * 100) / 100 };
   }
 
@@ -314,21 +275,21 @@ class AIDetector {
     const lengths = sentences.map(s => s.split(/\s+/).length);
     if (lengths.length < 3) return { score: 50 };
     const mean = lengths.reduce((a, b) => a + b, 0) / lengths.length;
-    const inRange = lengths.filter(l => l >= 12 && l <= 40).length;
+    const inRange = lengths.filter(l => l >= 10 && l <= 35).length;
     const ratio = inRange / lengths.length;
     let score;
-    if (ratio > 0.80) score = 75;
-    else if (ratio > 0.60) score = 55;
-    else if (ratio > 0.40) score = 35;
+    if (ratio > 0.75) score = 75;
+    else if (ratio > 0.55) score = 55;
+    else if (ratio > 0.35) score = 35;
     else score = 15;
     return { score, avgLength: Math.round(mean), uniformRatio: Math.round(ratio * 100) / 100 };
   }
 
   calculateFeatureScore(features) {
-    const weights = { burstiness: 0.25, vocabulary: 0.15, transitions: 0.22, patterns: 0.25, sentenceLength: 0.13 };
+    const weights = { burstiness: 0.20, vocabulary: 0.12, transitions: 0.18, formalPatterns: 0.15, informalPatterns: 0.15, signatures: 0.12, sentenceLength: 0.08 };
     let total = 0;
     for (const [key, weight] of Object.entries(weights)) {
-      total += (features[key]?.score || 50) * weight;
+      total += (features[key]?.score || 40) * weight;
     }
     return total;
   }
