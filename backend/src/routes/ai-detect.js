@@ -3,10 +3,12 @@ const { authenticate } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const FileParser = require('../services/parser');
 const AIDetector = require('../services/ai-detection');
+const PerplexityCalculator = require('../services/ai-detection/perplexity');
 
 const router = express.Router();
 const fileParser = new FileParser();
 const aiDetector = new AIDetector();
+const perplexityCalc = new PerplexityCalculator();
 
 // POST /api/ai-detect/text - Matnni AI tekshirish
 router.post('/text', authenticate, async (req, res) => {
@@ -19,11 +21,18 @@ router.post('/text', authenticate, async (req, res) => {
 
     const result = aiDetector.detectFull(text);
 
-    res.json({
-      success: true,
-      originalText: text,
-      ...result
-    });
+    // Perplexity (agar API key mavjud bo'lsa)
+    let perplexityResult = null;
+    if (perplexityCalc.isAvailable()) {
+      perplexityResult = await perplexityCalc.calculatePerplexity(text);
+      // Perplexity natijasini umumiy ballga qo'shish
+      if (perplexityResult && perplexityResult.aiProbability) {
+        result.aiScore = Math.round((result.aiScore * 0.5 + perplexityResult.aiProbability * 0.5) * 100) / 100;
+        result.perplexity = perplexityResult;
+      }
+    }
+
+    res.json({ success: true, originalText: text, ...result });
   } catch (error) {
     console.error('AI detect text xatosi:', error);
     res.status(500).json({ error: 'AI tahlilida xato yuz berdi.' });
@@ -46,6 +55,16 @@ router.post('/file', authenticate, upload.single('file'), async (req, res) => {
     }
 
     const result = aiDetector.detectFull(text);
+
+    // Perplexity (agar API key mavjud bo'lsa)
+    let perplexityResult = null;
+    if (perplexityCalc.isAvailable()) {
+      perplexityResult = await perplexityCalc.calculatePerplexity(text);
+      if (perplexityResult && perplexityResult.aiProbability) {
+        result.aiScore = Math.round((result.aiScore * 0.5 + perplexityResult.aiProbability * 0.5) * 100) / 100;
+        result.perplexity = perplexityResult;
+      }
+    }
 
     res.json({
       success: true,
