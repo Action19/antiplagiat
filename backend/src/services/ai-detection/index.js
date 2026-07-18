@@ -36,7 +36,6 @@ class AIDetector {
     return { aiScore: Math.round(aiScore * 100) / 100, verdict, message: this.getVerdictMessage(verdict), features };
   }
 
-
   analyzeBurstiness(text) {
     const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 5);
     if (sentences.length < 3) return { score: 50 };
@@ -78,66 +77,6 @@ class AIDetector {
     else score = 20;
     return { score, repeatRatio: Math.round(repeatRatio * 100) / 100 };
   }
-
-
-  analyzeTransitions(text) {
-    const lowerText = text.toLowerCase();
-    let count = 0;
-    for (const word of this.transitionWords) {
-      const regex = new RegExp(word, 'gi');
-      const matches = lowerText.match(regex);
-      if (matches) count += matches.length;
-    }
-    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 5);
-    const ratio = count / Math.max(sentences.length, 1);
-    let score;
-    if (ratio > 0.5) score = 85;
-    else if (ratio > 0.3) score = 65;
-    else if (ratio > 0.2) score = 40;
-    else score = 20;
-    return { score, ratio: Math.round(ratio * 100) / 100 };
-  }
-
-  analyzeRepetition(text) {
-    const words = text.toLowerCase().split(/\s+/);
-    const phraseCount = {};
-    for (let i = 0; i < words.length - 2; i++) {
-      const phrase = words.slice(i, i + 3).join(' ');
-      phraseCount[phrase] = (phraseCount[phrase] || 0) + 1;
-    }
-    const repeated = Object.values(phraseCount).filter(c => c > 2).length;
-    const rate = repeated / Math.max(Object.keys(phraseCount).length, 1);
-    let score;
-    if (rate > 0.1) score = 75;
-    else if (rate > 0.05) score = 50;
-    else score = 25;
-    return { score, repetitionRate: Math.round(rate * 100) / 100 };
-  }
-
-  calculateAIScore(features) {
-    const weights = { burstiness: 0.30, vocabulary: 0.20, sentenceStarters: 0.20, transitionUsage: 0.20, repetition: 0.10 };
-    let total = 0;
-    for (const [key, weight] of Object.entries(weights)) {
-      total += (features[key]?.score || 50) * weight;
-    }
-    return total;
-  }
-
-  getVerdictMessage(verdict) {
-    const msgs = {
-      'ai_generated': 'Bu matn AI tomonidan yozilgan.',
-      'likely_ai': 'Ehtimol AI tomonidan yozilgan.',
-      'mixed': 'AI va inson aralash yozgan bo\'lishi mumkin.',
-      'likely_human': 'Ehtimol inson yozgan.',
-      'human': 'Inson tomonidan yozilgan.',
-      'insufficient_text': 'Matn juda qisqa.'
-    };
-    return msgs[verdict] || 'Aniqlab bo\'lmadi.';
-  }
-}
-
-module.exports = AIDetector;
-
 
   analyzeTransitions(text) {
     const lowerText = text.toLowerCase();
