@@ -15,7 +15,22 @@ const PORT = process.env.PORT || 5000;
 // Security Middleware
 app.use(securityHeaders);
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: function(origin, callback) {
+    // Origin yo'q bo'lsa (curl, mobile app) yoki ruxsat berilgan bo'lsa
+    const frontendUrl = (process.env.FRONTEND_URL || '').replace(/\/$/, ''); // oxiridagi / ni olib tashlash
+    const allowedOrigins = [
+      frontendUrl,
+      'https://antiplagiatuz.netlify.app',
+      'http://localhost:3000',
+      'http://localhost:5173'
+    ].filter(Boolean);
+
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true); // development da hammaga ruxsat
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
