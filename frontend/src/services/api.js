@@ -39,4 +39,9 @@ export const adminAPI = {
   getDocuments: () => api.get('/admin/documents')
 };
 
+export const aiDetectAPI = {
+  checkText: (text) => api.post('/ai-detect/text', { text }),
+  checkFile: (formData) => api.post('/ai-detect/file', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+};
+
 export default api;

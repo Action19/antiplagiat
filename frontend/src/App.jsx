@@ -7,6 +7,7 @@ import CheckDocument from './pages/CheckDocument';
 import Results from './pages/Results';
 import DocumentDetail from './pages/DocumentDetail';
 import AdminPanel from './pages/AdminPanel';
+import AIDetector from './pages/AIDetector';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -25,6 +26,7 @@ function App() {
       <Route path="/results" element={<PrivateRoute><Results /></PrivateRoute>} />
       <Route path="/documents/:id" element={<PrivateRoute><DocumentDetail /></PrivateRoute>} />
       <Route path="/admin" element={<PrivateRoute>{isAdmin ? <AdminPanel /> : <Navigate to="/dashboard" />}</PrivateRoute>} />
+      <Route path="/ai-detector" element={<PrivateRoute><AIDetector /></PrivateRoute>} />
       <Route path="*" element={<Navigate to="/dashboard" />} />
     </Routes>
   );

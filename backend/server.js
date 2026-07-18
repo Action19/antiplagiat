@@ -6,6 +6,7 @@ require('dotenv').config();
 const authRoutes = require('./src/routes/auth');
 const documentRoutes = require('./src/routes/documents');
 const adminRoutes = require('./src/routes/admin');
+const aiDetectRoutes = require('./src/routes/ai-detect');
 const { generalLimiter, authLimiter, uploadLimiter, securityHeaders, detectSuspicious } = require('./src/middleware/security');
 const logger = require('./src/utils/logger');
 
@@ -63,6 +64,7 @@ app.use('/reports', express.static(path.join(__dirname, 'reports')));
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/ai-detect', aiDetectRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

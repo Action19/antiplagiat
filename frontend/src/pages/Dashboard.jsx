@@ -47,6 +47,10 @@ export default function Dashboard() {
                 <FiShield size={14} /> Admin
               </Link>
             )}
+            <Link to="/ai-detector" className="text-sm text-purple-600 hover:underline font-medium">
+              AI Detektor
+            </Link>
+            )}
             <button onClick={handleLogout} className="text-gray-500 hover:text-red-500 transition-colors">
               <FiLogOut size={20} />
             </button>
