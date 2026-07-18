@@ -44,24 +44,31 @@ class AIDetector {
       /not only.{0,20}but also/i,
       /it is (worth|important).{0,10}(mentioning|noting|remembering)/i,
       /these (experiences|moments|memories|years).{0,15}(shape|form|teach|help)/i,
+      // YANGI - shaxsiy hikoya uchun
+      /(unutilmas|ajoyib|go'zal|qimmatli|hayotiy).{0,15}(voqea|lahza|kun|davr|xotira)/i,
+      /o'ziga xos.{0,15}(xotira|voqea|tajriba|lahza)/i,
+      /hali ham.{0,20}(yodimdan|esimdan|xotiramdan|ko'z oldimdan)/i,
+      /(boy|to'la|to'lib-toshgan).{0,5}(bo'ladi|bo'lgan|edi)/i,
+      /(qaror|ahd) (qildim|qildi|qilishdi|qilgan)/i,
+      /men.{0,5}(uchun|ham).{0,5}(ham|esa|bu)/i,
+      /(tayyorgarlik|shug'ullanish|mashq).{0,10}(ko'rdim|qildim|boshladim)/i,
+      /(maslahat|yo'l-yo'riq|ko'rsatma).{0,10}(berdi|berishdi|oldi)/i,
     ];
 
     // ChatGPT ning xos xususiyatlari (barcha uslubda)
     this.chatgptSignatures = [
-      // Bir xil tuzilma: "X nafaqat Y, balki Z ham"
       /nafaqat.{5,40}balki.{5,40}ham/i,
-      // "Bu davr|narsa|masala" bilan boshlash
       /^bu (davr|narsa|masala|jarayon|holat|jihat)/i,
-      // Parallel tuzilmalar (AI juda ko'p ishlatadi)
       /(\w+lash|\w+tirish|\w+lanish),\s*(\w+lash|\w+tirish|\w+lanish)/i,
-      // Uch qismli tuzilma: A, B va C
-      /(\w+),\s*(\w+)\s*(va|hamda)\s*(\w+)/i,
-      // "...biri hisoblanadi/bo'ladi" konstruksiya
       /(biri|biridir) (hisoblanadi|bo'ladi|sanaladi)/i,
-      // Abstrakt umumlashtirish
-      /har bir.{0,10}(inson|odam|kishi|bola)/i,
-      // GPT ko'p ishlatadigan so'z juftliklari
+      /har bir.{0,20}(inson|odam|kishi|bola|o'quvchi)/i,
       /(bilim|tajriba|ko'nikma).{0,10}(va|hamda).{0,10}(malaka|ko'nikma|bilim|tajriba)/i,
+      // YANGI - shaxsiy hikoya uchun
+      /\w+,\s*\w+.{0,20}(va|hamda)\s+\w+/i,
+      /o'ziga xos/i,
+      /(boy|to'la).{0,5}bo'l/i,
+      /men.{0,5}(uchun|ham)/i,
+      /(ayniqsa|xususan),?.{0,5}(bir|bu|o'sha|shu)/i,
     ];
   }
 
@@ -73,7 +80,7 @@ class AIDetector {
     const sentences = this.splitSentences(text);
     const analyzedSentences = sentences.map((sentence, index) => {
       const score = this.analyzeSentence(sentence, index, sentences);
-      return { text: sentence, index, aiScore: score, isAI: score >= 50, level: this.getLevel(score) };
+      return { text: sentence, index, aiScore: score, isAI: score >= 40, level: this.getLevel(score) };
     });
 
     const features = this.analyzeFeatures(text, sentences);
@@ -180,9 +187,9 @@ class AIDetector {
   }
 
   getLevel(score) {
-    if (score >= 65) return 'high';
-    if (score >= 50) return 'medium';
-    if (score >= 35) return 'low';
+    if (score >= 60) return 'high';
+    if (score >= 40) return 'medium';
+    if (score >= 28) return 'low';
     return 'none';
   }
 
