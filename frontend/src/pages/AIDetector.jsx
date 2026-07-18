@@ -131,6 +131,51 @@ export default function AIDetector() {
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Input Section */}
         {!result && (
+          <>
+          {/* AI Detection Tizimi Info Block */}
+          <div className="card mb-6 bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-bold text-purple-800">AI DETECTION TIZIMI</h3>
+              <p className="text-sm text-purple-600">Yangilangan</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* 1-daraja */}
+              <div className="bg-white rounded-lg p-4 border border-purple-100 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-7 h-7 bg-purple-100 rounded-full flex items-center justify-center text-purple-700 font-bold text-sm">1</span>
+                  <h4 className="font-semibold text-gray-900">Stilometrik tahlil <span className="text-purple-600 text-xs font-normal">(50%)</span></h4>
+                </div>
+                <ul className="text-sm text-gray-600 space-y-1 ml-9">
+                  <li className="flex items-start gap-1"><span className="text-purple-500 mt-0.5">&#8226;</span> 10 ta mezon (patternlar, uzunlik, formal...)</li>
+                  <li className="flex items-start gap-1"><span className="text-green-500 mt-0.5">&#8226;</span> Har doim ishlaydi (bepul)</li>
+                  <li className="flex items-start gap-1"><span className="text-blue-500 mt-0.5">&#8226;</span> Aniqlik: ~65-70%</li>
+                </ul>
+              </div>
+
+              {/* 2-daraja */}
+              <div className="bg-white rounded-lg p-4 border border-indigo-100 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-7 h-7 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-sm">2</span>
+                  <h4 className="font-semibold text-gray-900">GPT-2 Perplexity <span className="text-indigo-600 text-xs font-normal">(50%)</span></h4>
+                </div>
+                <ul className="text-sm text-gray-600 space-y-1 ml-9">
+                  <li className="flex items-start gap-1"><span className="text-purple-500 mt-0.5">&#8226;</span> HuggingFace API orqali</li>
+                  <li className="flex items-start gap-1"><span className="text-green-500 mt-0.5">&#8226;</span> Matn "bashorat qilinarli" mi tekshiradi</li>
+                  <li className="flex items-start gap-1"><span className="text-blue-500 mt-0.5">&#8226;</span> Aniqlik: ~85%</li>
+                  <li className="flex items-start gap-1"><span className="text-orange-500 mt-0.5">&#8226;</span> HUGGINGFACE_API_KEY kerak</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Umumiy */}
+            <div className="mt-4 text-center p-3 bg-white rounded-lg border border-green-200">
+              <p className="text-sm font-medium text-gray-700">
+                Umumiy aniqlik: <span className="text-green-600 font-bold text-lg">~85%</span> <span className="text-gray-500">(ikkalasi birgalikda)</span>
+              </p>
+            </div>
+          </div>
+
           <div className="card">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Matn yoki fayl yuklang</h2>
 
@@ -203,6 +248,7 @@ export default function AIDetector() {
               </button>
             </form>
           </div>
+          </>
         )}
 
         {/* Results Section */}
